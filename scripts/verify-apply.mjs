@@ -33,7 +33,10 @@ const dispose = plugin.apply(ctx, { dataDir })
 
 const problems = []
 if (typeof dispose !== 'function') problems.push('apply() must return a disposer')
-if (tools.length !== 0) problems.push('no tools should be registered yet, got ' + tools.length)
+if (tools.length !== 5) problems.push('expected 5 tools at M2, got ' + tools.length)
+for (const tool of tools) {
+  if (!tool.name || typeof tool.execute !== 'function') problems.push('tool without name/execute: ' + tool.name)
+}
 
 if (problems.length > 0) {
   for (const problem of problems) console.error('FAIL  ' + problem)

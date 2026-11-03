@@ -19,7 +19,7 @@ const BYPASS = [
   /\.store\.all\(/,
   /\.store\.get\(/,
   /\.store\.records\b/,
-  /runtime\.view\(/,
+  /runtime\.store\b/,
 ]
 
 /**
@@ -36,8 +36,8 @@ export function findScopeViolations(source) {
 }
 
 test('the scanner flags a direct store read', () => {
-  assert.equal(findScopeViolations('const rows = runtime.store.all()').length, 1)
-  assert.equal(findScopeViolations('const view = runtime.view(exec); view.all()').length, 1)
+  assert.equal(findScopeViolations('const rows = runtime.store.all()').length, 2)
+  assert.equal(findScopeViolations('const view = runtime.view(exec); view.all()').length, 0)
   assert.equal(findScopeViolations('const view = exec.view; return view.all()').length, 0)
 })
 
