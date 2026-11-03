@@ -135,6 +135,17 @@ test('the profile supplies the sex the ranges need', async () => {
   assert.equal(crea.ref_source, 'dictionary')
 })
 
+test('the timeline folds one day into one line', async () => {
+  const { tools } = fresh()
+  await tools.measure.execute({ date: '2026-08-12', lines: ['低密度脂蛋白胆固醇 3.82 mmol/L 0-3.37'] }, exec)
+  await tools.record.execute({ kind: 'symptom', date: '2026-11-03', complaint: '早上起来头晕' }, exec)
+  const timeline = await tools.query.execute({ mode: 'timeline' }, exec)
+  assert.equal(timeline.days, 2)
+  const lines = timeline.text.split(String.fromCharCode(10))
+  assert.match(lines[0], /2026-11-03：症状 早上起来头晕/)
+  assert.match(lines[1], /2026-08-12：1 项测量（1 项异常：低密度脂蛋白胆固醇↑）/)
+})
+
 test('the archive can be read back and summarized', async () => {
   const { runtime, tools } = fresh()
   await tools.measure.execute({ date: '2026-08-12', lines: ['低密度脂蛋白胆固醇 3.82 mmol/L 0-3.37'] }, exec)
