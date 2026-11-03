@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- 默认数据目录改成 <DSH_HOME> 下（原来写死绝对路径）。不同 profile（不同 DSH_HOME）默认各存各的；desktop 的 DSH_HOME 就是 ~/.dsh，行为不变。
+
 ## 1.0.0
 
 - 体检报告导入：preview → commit，报告原文一字不改存档；锚点式解析重建被抽取打碎的表格。
