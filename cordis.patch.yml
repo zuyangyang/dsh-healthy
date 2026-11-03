@@ -1,0 +1,7 @@
+# dsh-healthy bundle layer.
+#
+# Declared via the `dsh.bundle.patch` manifest, so `dsh plugin add` mounts this
+# insert automatically. User-level overrides live in the profile patch layer.
+- insert:
+    - id: dsh-healthy
+      name: dsh-healthy

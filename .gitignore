@@ -1,0 +1,9 @@
+node_modules/
+*.log
+.DS_Store
+
+# Real reports are somebody's personal data. Keep them out of the repository and
+# ship a shape-only example instead; the parser tests skip themselves when the
+# local fixture is absent.
+test/fixtures/*.txt
+!test/fixtures/*.example.txt
