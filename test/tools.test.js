@@ -71,10 +71,43 @@ test('a spoken symptom is recorded with what was said', async () => {
   assert.equal(record.severity, 4)
 })
 
-test('a record kind without its required field is refused', async () => {
-  const { tools } = fresh()
-  await assert.rejects(tools.record.execute({ kind: 'allergy' }, exec), /需要 substance/)
+test('a fragment becomes a question instead of an error', async () => {
+  const { runtime, tools } = fresh()
+  const first = await tools.record.execute({ kind: 'allergy', reaction: '起疹子' }, exec)
+  assert.equal(first.recorded, 0)
+  assert.deepEqual(first.needs_answer, ['substance'])
+  assert.match(first.text, /对什么东西过敏/)
+  assert.equal(runtime.store.all().length, 0)
+
+  const second = await tools.record.execute({ draft_id: first.draft_id, substance: '青霉素' }, exec)
+  assert.equal(second.ok, true)
+  assert.match(second.text, /补上了/)
+  const stored = runtime.store.all()
+  assert.equal(stored.length, 1)
+  assert.equal(stored[0].substance, '青霉素')
+  assert.equal(stored[0].reaction, '起疹子', 'the field from the first message must survive the answer')
+  assert.equal(runtime.drafts.get(first.draft_id), null)
+})
+
+test('an abandoned draft can be cancelled, and an unknown kind still fails', async () => {
+  const { runtime, tools } = fresh()
+  const draft = await tools.record.execute({ kind: 'medication' }, exec)
+  const cancelled = await tools.record.execute({ cancel_draft: draft.draft_id }, exec)
+  assert.equal(cancelled.cancelled, true)
+  assert.equal(runtime.drafts.get(draft.draft_id), null)
+
   await assert.rejects(tools.record.execute({ kind: 'nonsense' }, exec), /kind 只能是/)
+  await assert.rejects(tools.record.execute({ draft_id: 'd_missing' }, exec), /过期/)
+})
+
+test('an empty profile asks for one item rather than storing nothing', async () => {
+  const { runtime, tools } = fresh()
+  const first = await tools.record.execute({ kind: 'profile' }, exec)
+  assert.match(first.text, /性别、出生年份/)
+  assert.equal(runtime.store.all().length, 0)
+  const second = await tools.record.execute({ draft_id: first.draft_id, height: 176 }, exec)
+  assert.equal(second.ok, true)
+  assert.equal(runtime.store.all()[0].height, 176)
 })
 
 test('the profile supplies the sex the ranges need', async () => {
