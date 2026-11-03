@@ -1,6 +1,6 @@
 {
   "name": "dsh-healthy",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Chat-first family health archive plugin for DeepSeek Harness: checkup reports and spoken symptoms in, tracked history and a doctor-ready summary out.",
   "license": "MIT",
   "type": "module",
