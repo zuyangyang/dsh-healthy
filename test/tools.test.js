@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync } from 'node:fs'
+import { mkdtempSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
@@ -57,6 +57,21 @@ test('an unknown analyte is stored, not dropped', async () => {
   assert.equal(record.analyte, null)
   assert.equal(record.needs_review, true)
   assert.equal(record.analyte_text, '糖化血清蛋白')
+})
+
+test('a correction becomes a new version and the old one stays on disk', async () => {
+  const { runtime, tools } = fresh()
+  const created = await tools.record.execute({ kind: 'medication', name: '氨氯地平', dose: '5mg' }, exec)
+  const revised = await tools.record.execute({ record_id: created.id, dose: '10mg' }, exec)
+  assert.equal(revised.version, 2)
+  const record = runtime.store.all()[0]
+  assert.equal(record.dose, '10mg')
+  assert.equal(record.name, '氨氯地平', 'a field nobody mentioned must survive the revision')
+  const lines = readFileSync(join(runtime.config.dataDir, 'entries.ndjson'), 'utf8')
+    .trim().split(String.fromCharCode(10))
+  assert.equal(lines.length, 2, 'both versions are kept in the log')
+  await assert.rejects(tools.record.execute({ record_id: 'h_missing', dose: '1mg' }, exec), /找不到这条记录/)
+  await assert.rejects(tools.record.execute({ record_id: created.id }, exec), /没说改哪个字段/)
 })
 
 test('a spoken symptom is recorded with what was said', async () => {
