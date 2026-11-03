@@ -237,11 +237,13 @@ v1 把解析放在 M3 靠后。真实报告证明**解析是最大风险**（表
 | **M1** 解析内核 | 归一化（NFKC+部首表+噪声剥离）、词典 92 项、单位、区间、行流重建 | **真 fixture 跑通：92 项认全，值/区间/单位/异常全对** |
 | **M2** 测量与所见 | `health_measure`、`finding` 切分、数量级校验 | 结构化路径与文本路径结果一致 |
 | **M3** 报告导入 | `health_report` preview/commit、原文存档、多报告比对、重要异常页 | preview 能准确说"3 项没认出来" |
-| **M4** 口头与事实 | `health_record` 九种 kind、SOAP、回执 | 每种 kind 的必填/追问/修订链 |
-| **M5** 趋势与建议 | series/timeline/redflags/advice/followup/review | 规则命中表；红旗不漏 |
+| **M4** ✅ 口头与事实 | `health_record` 九种 kind、SOAP、回执 | 每种 kind 的必填/追问/修订链 |
+| **M5** ✅ 趋势与建议 | series/timeline/redflags/advice/followup/review | 规则命中表；红旗不漏 |
 | **M6** 导出收尾 | 摘要卡/CSV/FHIR-lite/doctor/verify-apply/文档/0.1.0 | 一份报告进 → 一页摘要出 |
 
 M1 是硬骨头，也是整个插件的价值所在，单独留最多时间。
+
+**进度（2026-11）**：M0–M5 已完成，测试 90 条。M4 的追问链在 `lib/drafts.js`：残缺的话存成草稿，返回一个问题，14 天没人回答自动丢掉；修订走 `store.revise`，同一个 id 追加新版本，日志里旧版本不动。M5 的建议闭环在 `lib/advice.js`：建议落成 `kind: 'advice'` 记录，带 baseline（当时的数值/日期/区间）和 `due_on`；判定先比红旗等级，等级相同再比超出参考区间多少，所以"还是偏高但更接近了"不会被报成"没变化"。M6 的卡片/CSV/doctor/verify 已提前落地，剩 FHIR-lite 与图片入口。
 
 ## 13. 测试
 
